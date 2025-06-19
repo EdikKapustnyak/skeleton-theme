@@ -1,0 +1,86 @@
+<style>
+  .product-accordion {
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .accordion-item {
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .accordion-title {
+    cursor: pointer;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  .accordion-title:hover {
+    background-color: #f1f1f1;
+  }
+
+  .accordion-content {
+    display: none;
+    padding: 1rem;
+    background-color: white;
+  }
+
+  .accordion-item.active .accordion-content {
+    display: block;
+  }
+</style>
+
+<div class="product-accordion">
+  {% assign items = product.metafields.custom.accordion_items.value %}
+
+  {% if items and items.size > 0 %}
+    {% for item in items %}
+      {% if item.title != blank and item.description != blank %}
+        <div class="accordion-item">
+          <div class="accordion-title">{{ item.title }}</div>
+          <div class="accordion-content">{{ item.description }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <p>No accordion items available.</p>
+  {% endif %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const allowMultiple = {{ section.settings.allow_multiple | json }};
+    const items = document.querySelectorAll('.accordion-item');
+
+    items.forEach(item => {
+      const title = item.querySelector('.accordion-title');
+      title.addEventListener('click', () => {
+        if (!allowMultiple) {
+          items.forEach(i => {
+            if (i !== item) i.classList.remove('active');
+          });
+        }
+        item.classList.toggle('active');
+      });
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Product Accordion",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "allow_multiple",
+      "label": "Allow multiple open accordion items",
+      "default": false
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Accordion"
+    }
+  ]
+}
+{% endschema %}
